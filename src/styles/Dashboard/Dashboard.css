@@ -1,0 +1,173 @@
+/* Estructura Principal */
+.dashboard-layout {
+  min-height: 100vh;
+  background-color: #f3f4f6;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Barra Superior */
+.dashboard-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+  display: inline-block;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+}
+
+.navbar-subtitle {
+  color: #6b7280;
+  margin-left: 1rem;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-badge {
+  background-color: #fef3c7;
+  color: #d97706;
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.btn-logout {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  background: white;
+  border-radius: 6px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background-color: #f3f4f6;
+}
+
+/* Contenido Principal */
+.dashboard-content {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboard-header h2 {
+  color: #1f2937;
+  margin: 0 0 0.25rem 0;
+}
+
+.dashboard-header p {
+  color: #6b7280;
+  margin: 0 0 2rem 0;
+}
+
+/* Tarjetas de Resumen */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.kpi-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-card h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.kpi-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.kpi-danger {
+  border-left: 4px solid #ef4444;
+}
+
+.kpi-danger .kpi-label {
+  color: #ef4444;
+}
+
+/* Tabla */
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table-header h3 {
+  margin: 0;
+  color: #111827;
+}
+
+.navium-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.navium-table th {
+  background-color: #f9fafb;
+  padding: 1rem 1.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+.navium-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.table-empty {
+  text-align: center;
+  padding: 3rem !important;
+  color: #9ca3af !important;
+  font-style: italic;
+}
