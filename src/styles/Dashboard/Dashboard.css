@@ -63,8 +63,8 @@
 
 /* Contenido Principal */
 .dashboard-content {
-  padding: 2rem;
-  max-width: 1400px;
+  padding: 3rem 3.5rem;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
@@ -73,6 +73,7 @@
 .dashboard-header h2 {
   color: #1f2937;
   margin: 0 0 0.25rem 0;
+  font-size: 1.8rem;
 }
 
 .dashboard-header p {
@@ -84,13 +85,13 @@
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .kpi-card {
   background: white;
-  padding: 1.5rem;
+  padding: 1.75rem;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
@@ -134,13 +135,59 @@
 }
 
 .table-header {
-  padding: 1.5rem;
+  padding: 2rem;
   border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .table-header h3 {
   margin: 0;
   color: #111827;
+}
+
+.table-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.table-subtitle {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.table-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-button {
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  color: #4b5563;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  background: #eef2f7;
+  border-color: #d1d5db;
+}
+
+.filter-button-active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
 }
 
 .navium-table {
@@ -151,7 +198,7 @@
 
 .navium-table th {
   background-color: #f9fafb;
-  padding: 1rem 1.5rem;
+  padding: 1.1rem 1.5rem;
   font-size: 0.75rem;
   font-weight: 600;
   color: #6b7280;
@@ -159,10 +206,97 @@
 }
 
 .navium-table td {
-  padding: 1rem 1.5rem;
+  padding: 1.1rem 1.5rem;
   border-bottom: 1px solid #e5e7eb;
   color: #374151;
   font-size: 0.875rem;
+}
+
+.navium-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.col-turno {
+  font-weight: 600;
+  color: #111827;
+}
+
+.col-patente,
+.col-hora,
+.col-contenedor,
+.col-anden {
+  white-space: nowrap;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.tag-carga {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.tag-descarga {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.tag-retiro {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.tag-entrega {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.status-ok {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-info {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-warn {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-danger {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-muted {
+  background: #e5e7eb;
+  color: #6b7280;
 }
 
 .table-empty {
