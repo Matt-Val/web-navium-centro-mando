@@ -1,11 +1,10 @@
 
-
-// Se reemplaza la URL con la ruta real más adelante
-const API_BASE_URL = 'http://localhost:8080/api/dashboard';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082';
+const DASHBOARD_BASE_URL = `${API_BASE_URL}/api/dashboard`;
 
 export const obtenerTablero = async (token) => { 
     try { 
-        const response = await fetch(`${API_BASE_URL}/operaciones`, {
+        const response = await fetch(`${DASHBOARD_BASE_URL}/operaciones`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -14,12 +13,9 @@ export const obtenerTablero = async (token) => {
             }
     });
 
-    if (!response.ok) { 
-        throw new Error('Error HTTP: ${response.status}');
-    }
+    if (!response.ok) throw new Error('Error al obtener los datos del tablero');
 
-    const data = await response.json();
-    return data; // Aquí es donde regresamos los datos reales del backend    
+    return await response.json();
     } catch (error) { 
         console.error('error al conectar con el BFF:', error);
         throw error;

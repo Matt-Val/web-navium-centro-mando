@@ -180,6 +180,9 @@
 
 body {
   margin: 0;
+  font-family: var(--sans);
+  color: var(--text-h);
+  background: var(--color-gray-100);
 }
 
 #root {

@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { BrowserRouter , Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login/Login';
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './styles/App.css'
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard/Dashboard';
+import { Footer } from 'navium-ui-lib';
+import logo from './assets/navium-v1.png';
 
 function App() {
 
@@ -26,6 +25,15 @@ function App() {
           />
           <Route path="*" element={<Navigate to="/login" replace /> } />
         </Routes>
+        <Footer
+          logo={logo}
+          moduleLinks={[
+            { label: 'Servicios', href: '#servicios' },
+            { label: 'Nosotros', href: '#nosotros' },
+            { label: 'Clientes', href: '#clientes' },
+            { label: 'Contacto', href: '#contacto' }
+          ]}
+        />
       </BrowserRouter>
     </AuthProvider>
   );

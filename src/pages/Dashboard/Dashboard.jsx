@@ -1,6 +1,8 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { obtenerTablero } from '../../services/bffService';
+import { crearAgendamiento } from '../../services/agendamientoService';
+import AddAgendamientoModal from '../../components/AddAgendamientoModal';
 import '../../styles/Dashboard/Dashboard.css';
 
 const Dashboard = () => {
@@ -8,35 +10,58 @@ const Dashboard = () => {
   
   const [operaciones, setOperaciones] = useState([]);
   const [tipoFiltro, setTipoFiltro] = useState('TODOS');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const cargarDatos = async () => { 
+    try { 
+      const data = await obtenerTablero(token);
+      setOperaciones(data);
+    } catch (error) { 
+      console.error('Error al cargar el Dashboard: ', error);
+    }
+  };
 
   useEffect( () => { 
-    const cargarDatos = async () => { 
-      try { 
-        const data = await obtenerTablero(token);
-        setOperaciones(data);
-      } catch (error) { 
-        console.error('Error al cargar el Dashboard: ', error);
-      }
-    };
     cargarDatos();
-
   }, [token]);
+  
+  const handleSaveAgendamiento = async (nuevoAgendamiento) => {
+    await crearAgendamiento(nuevoAgendamiento, token);
+    await cargarDatos(); // Recargar la tabla
+  };
   
   // Cálculos para los números de las tarjetas
   const operacionesEnPatio = operaciones.filter(op => op.estadoContenedor === 'EN PATIO').length;
   const operacionesPerdidas = operaciones.filter(op => op.estadoContenedor === 'NO ENCONTRADO EN PATIO').length;
 
-  const filtrosDisponibles = ['TODOS', 'CARGA', 'DESCARGA', 'RETIRO', 'ENTREGA'];
+  const filtrosDisponibles = [
+    { label: 'Todos', value: 'TODOS' },
+    { label: 'Ingreso', value: 'INGRESO_CARGA' },
+    { label: 'Retiro', value: 'RETIRO_CARGA' },
+    { label: 'Devolucion', value: 'DEVOLUCION_VACIO' }
+  ];
 
   const operacionesFiltradas = useMemo(() => {
-    if (tipoFiltro === 'TODOS') {
-      return operaciones;
+    let filtradas = operaciones;
+
+    // 1. Filtro por Tipo de Operación
+    if (tipoFiltro !== 'TODOS') {
+      filtradas = filtradas.filter((op) =>
+        (op.tipoOperacion || '').toUpperCase().includes(tipoFiltro)
+      );
     }
 
-    return operaciones.filter((op) =>
-      (op.tipoOperacion || '').toUpperCase() === tipoFiltro
-    );
-  }, [operaciones, tipoFiltro]);
+    // 2. Filtro por Término de Búsqueda (Texto libre)
+    if (searchTerm.trim() !== '') {
+      const term = searchTerm.toLowerCase();
+      filtradas = filtradas.filter((op) =>
+        (op.codigoContenedor || '').toLowerCase().includes(term)
+      );
+    }
+
+    return filtradas;
+  }, [operaciones, tipoFiltro, searchTerm]);
 
   const formatearHora = (hora) => {
     if (!hora) {
@@ -57,10 +82,12 @@ const Dashboard = () => {
   const getOperacionClass = (tipo) => {
     switch ((tipo || '').toUpperCase()) {
       case 'CARGA':
+      case 'INGRESO_CARGA':
         return 'tag tag-carga';
       case 'DESCARGA':
         return 'tag tag-descarga';
       case 'RETIRO':
+      case 'RETIRO_CARGA':
         return 'tag tag-retiro';
       case 'ENTREGA':
         return 'tag tag-entrega';
@@ -88,15 +115,17 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-layout">
-      {/* 1. LA BARRA SUPERIOR */}
+      {/* 1. LA BARRA SUPERIOR ORIGINAL */}
       <header className="dashboard-navbar">
         <div className="navbar-brand">
-          <h1>NAVIUM LOGISTICS</h1>
-          <span className="navbar-subtitle">CENTRO DE MANDO</span>
+          <img
+            src="/navium-v1.png"
+            alt="Navium"
+            className="navbar-logo"
+          />
         </div>
         <div className="navbar-actions">
-          <span className="status-badge">Sistema: Estable</span>
-          <button onClick={logout} className="btn-logout">Cerrar Sesión</button>
+          <button onClick={logout} className="navbar-cta">Cerrar Sesión</button>
         </div>
       </header>
 
@@ -104,8 +133,15 @@ const Dashboard = () => {
       <main className="dashboard-content">
         
         <div className="dashboard-header">
-          <h2>Panel de Operaciones en tiempo real</h2>
-          <p>Monitoreo de andenes y contenedores</p>
+          <div className="header-title-row">
+            <div>
+              <h2>Panel de Operaciones</h2>
+              <p>Monitoreo de andenes y contenedores</p>
+            </div>
+            <button className="btn-add" onClick={() => setIsModalOpen(true)}>
+              + Nuevo Agendamiento
+            </button>
+          </div>
           <br></br>
         </div>
 
@@ -141,23 +177,40 @@ const Dashboard = () => {
                 {operacionesFiltradas.length} registros
               </span>
             </div>
-            <div className="table-filters">
-              {filtrosDisponibles.map((filtro) => (
-                <button
-                  key={filtro}
-                  type="button"
-                  className={
-                    filtro === tipoFiltro
-                      ? 'filter-button filter-button-active'
-                      : 'filter-button'
-                  }
-                  onClick={() => setTipoFiltro(filtro)}
-                >
-                  {filtro}
-                </button>
-              ))}
+
+            <div className="table-actions-row">
+              <div className="search-box">
+                <span className="search-icon" aria-hidden="true"></span>
+                <input 
+                  type="text" 
+                  placeholder="Buscar por codigo de contenedor..." 
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                  <button className="clear-search" onClick={() => setSearchTerm('')}>&times;</button>
+                )}
+              </div>
+
+              <div className="table-filters">
+                {filtrosDisponibles.map((filtro) => (
+                  <button
+                    key={filtro.value}
+                    type="button"
+                    className={
+                      filtro.value === tipoFiltro
+                        ? 'filter-button filter-button-active'
+                        : 'filter-button'
+                    }
+                    onClick={() => setTipoFiltro(filtro.value)}
+                  >
+                    {filtro.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
+
           <table className="navium-table">
             <thead>
               <tr>
@@ -174,7 +227,7 @@ const Dashboard = () => {
               {operacionesFiltradas.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="table-empty">
-                    Esperando datos del servidor...
+                    {searchTerm ? 'No se encontraron resultados para tu búsqueda' : 'Esperando datos del servidor...'}
                   </td>
                 </tr>
               ) : (
@@ -205,6 +258,14 @@ const Dashboard = () => {
         </div>
 
       </main>
+
+      <AddAgendamientoModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSave={handleSaveAgendamiento}
+        userId={1}
+        userEmail="matias@navium.com"
+      />
     </div>
   );
 };

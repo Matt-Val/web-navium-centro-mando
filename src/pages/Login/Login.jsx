@@ -2,24 +2,34 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button, FormGroup } from 'navium-ui-lib';
+import { loginUsuario } from '../../services/authService';
 import '../../styles/Login/Login.css';
 
 const Login = () => { 
     const [usuario, setUsuario] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
 
-    const handleLogin = (e) => {
-        e.preventDefault(); // Evita que la pagina recargue al dar ENTER
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
 
-        // Mock simulado
-        if (usuario === 'admin@navium.com' && password === '1234') {
-            login('token-de-prueba-muy-seguro');
-            navigate('/dashboard'); // Redirige a dashboard
-        } else { 
-          setError('Credenciales inválidas. Intenta nuevamente.');
+        try {
+            const data = await loginUsuario(usuario, password);
+            if (data.token) {
+                login(data.token);
+                navigate('/dashboard');
+            } else {
+                setError('No se recibió un token de acceso.');
+            }
+        } catch (err) {
+            setError(err.message || 'Credenciales inválidas o error de conexión.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -65,8 +75,9 @@ const Login = () => {
             variant="primary" 
             size="lg" 
             className="login-btn-submit"
+            disabled={loading}
           >
-            Iniciar Sesión
+            {loading ? 'Validando...' : 'Iniciar Sesión'}
           </Button>
         </form>
 
