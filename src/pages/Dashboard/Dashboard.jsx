@@ -3,6 +3,9 @@ import { useAuth } from '../../context/AuthContext';
 import { obtenerTablero } from '../../services/bffService';
 import { crearAgendamiento } from '../../services/agendamientoService';
 import AddAgendamientoModal from '../../components/AddAgendamientoModal';
+import MapaAndenes from '../../components/MapaAndenes';
+import RevisionDocumental from '../../components/RevisionDocumental';
+import DashboardStats from '../../components/DashboardStats';
 import '../../styles/Dashboard/Dashboard.css';
 
 const Dashboard = () => {
@@ -168,7 +171,16 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* 4. LA TABLA PRINCIPAL */}
+        {/* 4. ESTADÍSTICAS Y GRÁFICOS */}
+        <DashboardStats />
+
+        {/* 5. MAPA ESPACIAL DE ANDENES */}
+        <MapaAndenes />
+
+        {/* 5. GESTIÓN DOCUMENTAL */}
+        <RevisionDocumental />
+
+        {/* 6. LA TABLA PRINCIPAL */}
         <div className="table-container">
           <div className="table-header">
             <div className="table-title">
