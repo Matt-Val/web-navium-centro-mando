@@ -1,17 +1,16 @@
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8082';
-const DASHBOARD_BASE_URL = `${API_BASE_URL}/api/dashboard`;
+const DASHBOARD_BASE_URL = '/api/dashboard';
 
-export const obtenerTablero = async (token) => { 
+export const obtenerTablero = async () => { 
     try { 
         const response = await fetch(`${DASHBOARD_BASE_URL}/operaciones`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include'
         });
 
+        if (response.status === 403) {
+            throw new Error('Acceso denegado. Token inválido o expirado.');
+        }
         if (!response.ok) throw new Error('Error al obtener los datos del tablero');
         return await response.json();
     } catch (error) {
@@ -20,15 +19,15 @@ export const obtenerTablero = async (token) => {
     }
 };
 
-export const obtenerMapaAndenes = async (token) => {
+export const obtenerMapaAndenes = async () => {
     try {
         const response = await fetch(`${DASHBOARD_BASE_URL}/mapa-andenes`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include'
         });
+        if (response.status === 403) {
+            throw new Error('Acceso denegado. Token inválido o expirado.');
+        }
         if (!response.ok) throw new Error('Error al obtener el mapa de andenes');
         return await response.json();
     } catch (error) {
@@ -37,15 +36,15 @@ export const obtenerMapaAndenes = async (token) => {
     }
 };
 
-export const obtenerEstadisticas = async (token) => {
+export const obtenerEstadisticas = async () => {
     try {
         const response = await fetch(`${DASHBOARD_BASE_URL}/estadisticas`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include'
         });
+        if (response.status === 403) {
+            throw new Error('Acceso denegado. Token inválido o expirado.');
+        }
         if (!response.ok) throw new Error('Error al obtener las estadisticas');
         return await response.json();
     } catch (error) {
@@ -54,15 +53,15 @@ export const obtenerEstadisticas = async (token) => {
     }
 };
 
-export const obtenerDocumentosPendientes = async (token) => {
+export const obtenerDocumentosPendientes = async () => {
     try {
         const response = await fetch(`${DASHBOARD_BASE_URL}/documentos/pendientes`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include'
         });
+        if (response.status === 403) {
+            throw new Error('Acceso denegado. Token inválido o expirado.');
+        }
         if (!response.ok) throw new Error('Error al obtener documentos');
         return await response.json();
     } catch (error) {
@@ -71,14 +70,15 @@ export const obtenerDocumentosPendientes = async (token) => {
     }
 };
 
-export const revisarDocumento = async (idContenedor, estado, token) => {
+export const revisarDocumento = async (idContenedor, estado) => {
     try {
         const response = await fetch(`${DASHBOARD_BASE_URL}/documentos/${idContenedor}/revisar?estado=${estado}`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            credentials: 'include'
         });
+        if (response.status === 403) {
+            throw new Error('Acceso denegado. Token inválido o expirado.');
+        }
         if (!response.ok) throw new Error('Error al revisar documento');
         return await response.text();
     } catch (error) {
@@ -86,5 +86,3 @@ export const revisarDocumento = async (idContenedor, estado, token) => {
         throw error;
     }
 };
-
-

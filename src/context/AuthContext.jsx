@@ -1,33 +1,27 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ( { children } ) => { 
-    const [token, setToken] = useState(localStorage.getItem('navium_token'));
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return document.cookie.includes('navium_auth=true') || document.cookie.includes('token=');
+    });
 
-    // Cada vez que el token cambie, lo actualizamos al almacenamiento local
-    useEffect( () => { 
-        if (token) { 
-            localStorage.setItem('navium_token', token);
-        } else { 
-            localStorage.removeItem('navium_token');
-        }
-    }, [token]);
-
-    const login = (newToken) => { 
-        setToken(newToken);
+    const login = (token) => { 
+        document.cookie = 'navium_auth=true; path=/; max-age=36000';
+        setIsAuthenticated(true);
     };
 
     const logout = () => { 
-        setToken(null);
+        document.cookie = 'navium_auth=; path=/; max-age=0';
+        setIsAuthenticated(false);
     };
 
     return ( 
-        <AuthContext.Provider value={{ token, login, logout, isAuthenticated: !!token}}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-// Hook personalizado para usar el contexto de autenticación
 export const useAuth = () => useContext(AuthContext);
