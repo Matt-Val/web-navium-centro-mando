@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Button, FormGroup } from 'navium-ui-lib';
 import { loginUsuario } from '../../services/authService';
-import '../../styles/Login/Login.css';
+import './Login.css';
 
 const Login = () => { 
     const [usuario, setUsuario] = useState('');
@@ -19,13 +19,9 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const data = await loginUsuario(usuario, password);
-            if (data.token) {
-                login(data.token);
-                navigate('/dashboard');
-            } else {
-                setError('No se recibió un token de acceso.');
-            }
+            await loginUsuario(usuario, password);
+            login();
+            navigate('/dashboard');
         } catch (err) {
             setError(err.message || 'Credenciales inválidas o error de conexión.');
         } finally {
@@ -43,6 +39,7 @@ const Login = () => {
           <p>Ingresa tus credenciales operativas</p>
         </div>
         
+        {error && <div className="login-error-message" style={{ color: '#ff4d4f', marginBottom: '16px', textAlign: 'center', fontSize: '14px', fontWeight: 'bold' }}>{error}</div>}
 
         <form onSubmit={handleLogin} className="login-form">
           <FormGroup 

@@ -1,30 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { obtenerEstadisticas } from '../services/bffService';
-import { useAuth } from '../context/AuthContext';
-import '../styles/Dashboard/DashboardStats.css';
+import { obtenerEstadisticas } from '../../services/bffService';
+import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
+import { Spinner } from 'navium-ui-lib';
+import './DashboardStats.css';
 
 const DashboardStats = () => {
-    const { token } = useAuth();
+    const { refreshKey } = useDashboardRefresh();
     const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const data = await obtenerEstadisticas(token);
+                setLoading(true);
+                const data = await obtenerEstadisticas();
                 setStats(data);
+                setError(null);
             } catch (error) {
                 console.error("Error stats:", error);
+                setError('Error al cargar estadísticas');
+            } finally {
+                setLoading(false);
             }
         };
         fetchStats();
-    }, [token]);
+    }, [refreshKey]);
 
-    if (!stats) return <div className="stats-loading">Generando métricas...</div>;
+    if (loading) return <div className="stats-loading"><Spinner size="lg" color="primary" message="Generando métricas..." /></div>;
 
-    // Formatear datos para Recharts
-    const dataEstado = Object.entries(stats.distribucionPorEstado).map(([name, value]) => ({ name, value }));
-    const dataTipo = Object.entries(stats.operacionesPorTipo).map(([name, value]) => ({ name, value }));
+    if (error) return <div className="stats-loading" style={{color: '#ef4444'}}>{error}</div>;
+
+    if (!stats) return null;
+
+    const dataEstado = Object.entries(stats?.distribucionPorEstado || {}).map(([name, value]) => ({ name, value }));
+    const dataTipo = Object.entries(stats?.operacionesPorTipo || {}).map(([name, value]) => ({ name, value }));
 
     const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 

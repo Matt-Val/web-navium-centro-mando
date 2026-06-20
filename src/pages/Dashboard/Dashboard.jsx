@@ -1,41 +1,48 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { obtenerTablero } from '../../services/bffService';
-import { crearAgendamiento } from '../../services/agendamientoService';
-import AddAgendamientoModal from '../../components/AddAgendamientoModal';
-import MapaAndenes from '../../components/MapaAndenes';
-import RevisionDocumental from '../../components/RevisionDocumental';
-import DashboardStats from '../../components/DashboardStats';
-import '../../styles/Dashboard/Dashboard.css';
+import { useToast, Spinner } from 'navium-ui-lib';
+import { Users, ChevronDown, X, Search } from 'lucide-react';
+import UsersModal from '../../components/UsersModal/UsersModal';
+import MapaAndenes from '../../components/MapaAndenes/MapaAndenes';
+import RevisionDocumental from '../../components/RevisionDocumental/RevisionDocumental';
+import DashboardStats from '../../components/DashboardStats/DashboardStats';
+import './Dashboard.css';
 
 const Dashboard = () => {
-  const { logout, token } = useAuth();
-  
+  const { logout } = useAuth();
+  const { refreshKey } = useDashboardRefresh();
+  const toast = useToast();
   const [operaciones, setOperaciones] = useState([]);
+  const [loadingTable, setLoadingTable] = useState(true);
   const [tipoFiltro, setTipoFiltro] = useState('TODOS');
+  const [estadoFiltro, setEstadoFiltro] = useState('TODOS');
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showTipoFilter, setShowTipoFilter] = useState(false);
+  const [showEstadoFilter, setShowEstadoFilter] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
 
   const cargarDatos = async () => { 
     try { 
-      const data = await obtenerTablero(token);
+      setLoadingTable(true);
+      const data = await obtenerTablero();
       setOperaciones(data);
     } catch (error) { 
       console.error('Error al cargar el Dashboard: ', error);
+      toast.error('Error al cargar datos del dashboard');
+    } finally {
+      setLoadingTable(false);
     }
   };
 
   useEffect( () => { 
     cargarDatos();
-  }, [token]);
-  
-  const handleSaveAgendamiento = async (nuevoAgendamiento) => {
-    await crearAgendamiento(nuevoAgendamiento, token);
-    await cargarDatos(); // Recargar la tabla
-  };
+  }, [refreshKey]);
   
   // Cálculos para los números de las tarjetas
-  const operacionesEnPatio = operaciones.filter(op => op.estadoContenedor === 'EN PATIO').length;
+  const operacionesConContenedor = operaciones.filter(op => op.estadoContenedor && op.estadoContenedor !== 'NO ENCONTRADO EN PATIO').length;
   const operacionesPerdidas = operaciones.filter(op => op.estadoContenedor === 'NO ENCONTRADO EN PATIO').length;
 
   const filtrosDisponibles = [
@@ -43,6 +50,14 @@ const Dashboard = () => {
     { label: 'Ingreso', value: 'INGRESO_CARGA' },
     { label: 'Retiro', value: 'RETIRO_CARGA' },
     { label: 'Devolucion', value: 'DEVOLUCION_VACIO' }
+  ];
+
+  const estadosDisponibles = [
+    { label: 'Todos', value: 'TODOS' },
+    { label: 'En Patio', value: 'EN PATIO' },
+    { label: 'Registrado', value: 'REGISTRADO' },
+    { label: 'Detenido', value: 'DETENIDO' },
+    { label: 'Despachado', value: 'DESPACHADO' }
   ];
 
   const operacionesFiltradas = useMemo(() => {
@@ -55,7 +70,14 @@ const Dashboard = () => {
       );
     }
 
-    // 2. Filtro por Término de Búsqueda (Texto libre)
+    // 2. Filtro por Estado del Contenedor
+    if (estadoFiltro !== 'TODOS') {
+      filtradas = filtradas.filter((op) =>
+        (op.estadoContenedor || '').toUpperCase() === estadoFiltro
+      );
+    }
+
+    // 3. Filtro por Término de Búsqueda (Texto libre)
     if (searchTerm.trim() !== '') {
       const term = searchTerm.toLowerCase();
       filtradas = filtradas.filter((op) =>
@@ -64,7 +86,7 @@ const Dashboard = () => {
     }
 
     return filtradas;
-  }, [operaciones, tipoFiltro, searchTerm]);
+  }, [operaciones, tipoFiltro, estadoFiltro, searchTerm]);
 
   const formatearHora = (hora) => {
     if (!hora) {
@@ -103,6 +125,12 @@ const Dashboard = () => {
     switch ((estado || '').toUpperCase()) {
       case 'EN PATIO':
         return 'status status-ok';
+      case 'REGISTRADO':
+        return 'status status-info';
+      case 'DETENIDO':
+        return 'status status-warn';
+      case 'DESPACHADO':
+        return 'status status-muted';
       case 'EN TRANSITO':
         return 'status status-info';
       case 'ESPERA':
@@ -128,6 +156,10 @@ const Dashboard = () => {
           />
         </div>
         <div className="navbar-actions">
+          <button onClick={() => setIsUsersModalOpen(true)} className="navbar-cta navbar-btn-users">
+            <Users size={18} style={{marginRight: '8px', verticalAlign: 'middle'}} />
+            Usuarios
+          </button>
           <button onClick={logout} className="navbar-cta">Cerrar Sesión</button>
         </div>
       </header>
@@ -141,9 +173,6 @@ const Dashboard = () => {
               <h2>Panel de Operaciones</h2>
               <p>Monitoreo de andenes y contenedores</p>
             </div>
-            <button className="btn-add" onClick={() => setIsModalOpen(true)}>
-              + Nuevo Agendamiento
-            </button>
           </div>
           <br></br>
         </div>
@@ -157,11 +186,11 @@ const Dashboard = () => {
           </div>
           
           <div className="kpi-card">
-            <h3>Contenedores en Patio</h3>
+            <h3>Contenedores Activos</h3>
             <span className="kpi-value" style={{color: '#10b981'}}>
-              {operacionesEnPatio}
+              {operacionesConContenedor}
             </span>
-            <span className="kpi-label" style={{color: '#10b981'}}>Activos</span>
+            <span className="kpi-label" style={{color: '#10b981'}}>Registrados</span>
           </div>
 
           <div className="kpi-card kpi-danger">
@@ -192,54 +221,191 @@ const Dashboard = () => {
 
             <div className="table-actions-row">
               <div className="search-box">
-                <span className="search-icon" aria-hidden="true"></span>
-                <input 
-                  type="text" 
-                  placeholder="Buscar por codigo de contenedor..." 
+                <Search size={16} className="search-icon-lucide" />
+                <input
+                  type="text"
+                  placeholder="Buscar por codigo de contenedor..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 {searchTerm && (
-                  <button className="clear-search" onClick={() => setSearchTerm('')}>&times;</button>
+                  <button className="clear-search" onClick={() => setSearchTerm('')}>
+                    <X size={14} />
+                  </button>
                 )}
               </div>
 
-              <div className="table-filters">
-                {filtrosDisponibles.map((filtro) => (
+              <div className="filter-dropdowns">
+                <div className="filter-select-wrapper">
+                  <label>Tipo:</label>
+                  <div className="filter-select">
+                    <button
+                      className={`filter-btn filter-btn-tipo ${tipoFiltro !== 'TODOS' ? 'active' : ''}`}
+                      onClick={() => setShowTipoFilter(!showTipoFilter)}
+                    >
+                      {filtrosDisponibles.find(f => f.value === tipoFiltro)?.label || 'Todos'}
+                      <ChevronDown size={14} className="filter-arrow-lucide" />
+                    </button>
+                    {showTipoFilter && (
+                      <div className="filter-menu">
+                        {filtrosDisponibles.map((filtro) => (
+                          <button
+                            key={filtro.value}
+                            className={filtro.value === tipoFiltro ? 'selected' : ''}
+                            onClick={() => { setTipoFiltro(filtro.value); setShowTipoFilter(false); }}
+                          >
+                            {filtro.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="filter-select-wrapper">
+                  <label>Estado:</label>
+                  <div className="filter-select">
+                    <button
+                      className={`filter-btn filter-btn-estado ${estadoFiltro !== 'TODOS' ? 'active' : ''}`}
+                      onClick={() => setShowEstadoFilter(!showEstadoFilter)}
+                    >
+                      {estadosDisponibles.find(e => e.value === estadoFiltro)?.label || 'Todos'}
+                      <ChevronDown size={14} className="filter-arrow-lucide" />
+                    </button>
+                    {showEstadoFilter && (
+                      <div className="filter-menu">
+                        {estadosDisponibles.map((estado) => (
+                          <button
+                            key={estado.value}
+                            className={estado.value === estadoFiltro ? 'selected' : ''}
+                            onClick={() => { setEstadoFiltro(estado.value); setShowEstadoFilter(false); }}
+                          >
+                            {estado.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {(tipoFiltro !== 'TODOS' || estadoFiltro !== 'TODOS') && (
                   <button
-                    key={filtro.value}
-                    type="button"
-                    className={
-                      filtro.value === tipoFiltro
-                        ? 'filter-button filter-button-active'
-                        : 'filter-button'
-                    }
-                    onClick={() => setTipoFiltro(filtro.value)}
+                    className="filter-clear-btn"
+                    onClick={() => { setTipoFiltro('TODOS'); setEstadoFiltro('TODOS'); }}
                   >
-                    {filtro.label}
+                    <X size={14} style={{marginRight: '4px'}} />
+                    Limpiar
                   </button>
-                ))}
+                )}
               </div>
+
+              <button
+                className="mobile-filter-toggle"
+                onClick={() => setShowMobileFilters(!showMobileFilters)}
+              >
+                {tipoFiltro !== 'TODOS' || estadoFiltro !== 'TODOS' ? (
+                  <span className="filter-badge-count">{(tipoFiltro !== 'TODOS' ? 1 : 0) + (estadoFiltro !== 'TODOS' ? 1 : 0)}</span>
+                ) : '☰'}
+              </button>
+
+              {showMobileFilters && (
+                <div className="filter-mobile-panel">
+                  <div className="filter-select-wrapper">
+                    <label>Tipo:</label>
+                    <div className="filter-select">
+                      <button
+                        className={`filter-btn filter-btn-tipo ${tipoFiltro !== 'TODOS' ? 'active' : ''}`}
+                        onClick={() => setShowTipoFilter(!showTipoFilter)}
+                      >
+                        {filtrosDisponibles.find(f => f.value === tipoFiltro)?.label || 'Todos'}
+                        <ChevronDown size={14} className="filter-arrow-lucide" />
+                      </button>
+                      {showTipoFilter && (
+                        <div className="filter-menu">
+                          {filtrosDisponibles.map((filtro) => (
+                            <button
+                              key={filtro.value}
+                              className={filtro.value === tipoFiltro ? 'selected' : ''}
+                              onClick={() => { setTipoFiltro(filtro.value); setShowTipoFilter(false); }}
+                            >
+                              {filtro.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="filter-select-wrapper">
+                    <label>Estado:</label>
+                    <div className="filter-select">
+                      <button
+                        className={`filter-btn filter-btn-estado ${estadoFiltro !== 'TODOS' ? 'active' : ''}`}
+                        onClick={() => setShowEstadoFilter(!showEstadoFilter)}
+                      >
+                        {estadosDisponibles.find(e => e.value === estadoFiltro)?.label || 'Todos'}
+                        <ChevronDown size={14} className="filter-arrow-lucide" />
+                      </button>
+                      {showEstadoFilter && (
+                        <div className="filter-menu">
+                          {estadosDisponibles.map((estado) => (
+                            <button
+                              key={estado.value}
+                              className={estado.value === estadoFiltro ? 'selected' : ''}
+                              onClick={() => { setEstadoFiltro(estado.value); setShowEstadoFilter(false); }}
+                            >
+                              {estado.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {(tipoFiltro !== 'TODOS' || estadoFiltro !== 'TODOS') && (
+                    <button
+                      className="filter-clear-btn"
+                      onClick={() => { setTipoFiltro('TODOS'); setEstadoFiltro('TODOS'); }}
+                    >
+                      <X size={14} style={{marginRight: '4px'}} />
+                      Limpiar filtros
+                    </button>
+                  )}
+
+                  <button
+                    className="filter-close-btn"
+                    onClick={() => setShowMobileFilters(false)}
+                  >
+                    <X size={16} />
+                    Cerrar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-
-          <table className="navium-table">
-            <thead>
-              <tr>
-                <th>Turno</th>
-                <th>Patente</th>
-                <th>Hora</th>
-                <th>Operacion</th>
-                <th>Contenedor</th>
-                <th>Estado Contenedor</th>
-                <th>Anden Asignado</th>
-              </tr>
-            </thead>
+<table className="navium-table">
+  <thead>
+    <tr>
+      <th>Turno</th>
+      <th>Patente</th>
+      <th>Hora</th>
+      <th>Operacion</th>
+      <th>Contenedor</th>
+      <th>Estado Contenedor</th>
+      <th>Anden Asignado</th>
+    </tr>
+  </thead>
             <tbody>
-              {operacionesFiltradas.length === 0 ? (
+              {loadingTable ? (
+                <tr>
+                  <td colSpan="7" className="table-empty" style={{textAlign: 'center', padding: '40px'}}>
+                    <Spinner size="lg" color="primary" message="Cargando operaciones..." />
+                  </td>
+                </tr>
+              ) : operacionesFiltradas.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="table-empty">
-                    {searchTerm ? 'No se encontraron resultados para tu búsqueda' : 'Esperando datos del servidor...'}
+                    {searchTerm ? 'No se encontraron resultados para tu búsqueda' : 'No hay operaciones registradas'}
                   </td>
                 </tr>
               ) : (
@@ -271,12 +437,9 @@ const Dashboard = () => {
 
       </main>
 
-      <AddAgendamientoModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveAgendamiento}
-        userId={1}
-        userEmail="matias@navium.com"
+      <UsersModal
+        isOpen={isUsersModalOpen}
+        onClose={() => setIsUsersModalOpen(false)}
       />
     </div>
   );

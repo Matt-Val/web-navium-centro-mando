@@ -1,0 +1,288 @@
+.users-modal {
+  width: 1000px;
+  max-width: 95vw;
+  max-height: 90vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.users-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2rem;
+  background: #222426;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.users-modal-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 1.25rem;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+}
+
+.users-modal-close {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.users-modal-close:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.users-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background: #f8fafc;
+}
+
+.users-actions-bar {
+  margin-bottom: 1.5rem;
+}
+
+.btn-create-user {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.user-form-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.user-form-container h4 {
+  margin: 0 0 1.5rem 0;
+  color: #1e293b;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #f2b40e;
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.user-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.form-group input::placeholder {
+  color: #94a3b8;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #f2b40e;
+  background: white;
+  color: #111827;
+  box-shadow: 0 0 0 4px rgba(242, 180, 14, 0.1);
+}
+
+.form-group input.input-error {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.form-group input.input-error:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.users-loading {
+  display: flex;
+  justify-content: center;
+  padding: 4rem;
+}
+
+.users-table-container {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.users-table th {
+  background: #f1f5f9;
+  padding: 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.users-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.875rem;
+  color: #334155;
+}
+
+.users-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.rol-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.rol-centro_mando {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.rol-sucursal {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.rol-operador {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.estado-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.estado-badge.activo {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.estado-badge.inactivo {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+  min-width: 80px;
+}
+
+.btn-action {
+  background: #f1f5f9;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-action:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+  transform: translateY(-1px);
+}
+
+.btn-edit:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.btn-deactivate:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.btn-activate:hover {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.navbar-btn-users {
+  background: #374151 !important;
+  color: white !important;
+  margin-right: 0.5rem;
+}
+
+.navbar-btn-users:hover {
+  background: #1f2937 !important;
+}
