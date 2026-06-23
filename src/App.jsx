@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter , Routes, Route, Navigate } from 'react-router-dom';
-import Login from './pages/Login/Login';
+
 import './styles/App.css'
 import { AuthProvider } from './context/AuthContext';
 import { DashboardRefreshProvider } from './context/DashboardRefreshContext';
@@ -17,7 +17,6 @@ function App() {
         <DashboardRefreshProvider>
           <BrowserRouter>
             <Routes>
-              <Route path="/login" element={<Login />} />
               <Route 
                 path="/dashboard" 
                 element={
@@ -26,7 +25,7 @@ function App() {
                   </ProtectedRoute>
                 } 
               />
-              <Route path="*" element={<Navigate to="/login" replace /> } />
+              <Route path="*" element={<Navigate to="/dashboard" replace /> } />
             </Routes>
             <Footer
               logo={logo}

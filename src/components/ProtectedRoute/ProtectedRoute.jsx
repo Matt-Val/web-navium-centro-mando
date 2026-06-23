@@ -5,7 +5,10 @@ const ProtectedRoute = ({ children }) => {
     const { isAuthenticated } = useAuth();
 
     if (!isAuthenticated) { 
-        return <Navigate to="/login" replace />;
+        // Redirigir al Login Central
+        const loginUrl = import.meta.env.VITE_URL_LOGIN_CENTRAL || 'http://localhost:5170';
+        window.location.href = loginUrl;
+        return null;
     }
     return children;
 };
