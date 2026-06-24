@@ -3,6 +3,8 @@ import { useToast, Spinner, Button } from 'navium-ui-lib';
 import { UserPlus, Pencil, Trash2, Check, X } from 'lucide-react';
 import './UsersModal.css';
 
+const DASHBOARD_BASE_URL = import.meta.env.VITE_API_DASHBOARD || '/api/dashboard';
+
 const ROLES = [
   { value: 'ROL_CENTRO_MANDO', label: 'Centro de Mando' },
   { value: 'ROL_SUCURSAL', label: 'Sucursal' },
@@ -33,7 +35,7 @@ const UsersModal = ({ isOpen, onClose }) => {
   const cargarUsuarios = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/dashboard/usuarios', { credentials: 'include' });
+      const response = await fetch(`${DASHBOARD_BASE_URL}/usuarios`, { credentials: 'include' });
       if (response.ok) {
         const data = await response.json();
         setUsuarios(data);
@@ -58,7 +60,7 @@ const UsersModal = ({ isOpen, onClose }) => {
     setFieldErrors({});
     try {
       const method = editingUser ? 'PUT' : 'POST';
-      const url = editingUser ? `/api/dashboard/usuarios/${editingUser.id}` : '/api/dashboard/usuarios';
+      const url = editingUser ? `${DASHBOARD_BASE_URL}/usuarios/${editingUser.id}` : `${DASHBOARD_BASE_URL}/usuarios`;
 
       const response = await fetch(url, {
         method,
@@ -105,7 +107,7 @@ const UsersModal = ({ isOpen, onClose }) => {
   const handleDesactivar = async (id) => {
     if (!confirm('¿Confirmas desactivar este usuario?')) return;
     try {
-      const response = await fetch(`/api/dashboard/usuarios/${id}`, {
+      const response = await fetch(`${DASHBOARD_BASE_URL}/usuarios/${id}`, {
         method: 'DELETE',
         credentials: 'include'
       });
@@ -120,7 +122,7 @@ const UsersModal = ({ isOpen, onClose }) => {
 
   const handleActivar = async (id) => {
     try {
-      const response = await fetch(`/api/dashboard/usuarios/${id}/activar`, {
+      const response = await fetch(`${DASHBOARD_BASE_URL}/usuarios/${id}/activar`, {
         method: 'PATCH',
         credentials: 'include'
       });
