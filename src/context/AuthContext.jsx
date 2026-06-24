@@ -7,7 +7,8 @@ export const AuthProvider = ( { children } ) => {
 
     React.useEffect(() => {
         // Verificar si la cookie HttpOnly es válida preguntando al backend
-        fetch('/api/auth/me')
+        const authUrl = import.meta.env.VITE_API_AUTH || '/api/auth';
+        fetch(`${authUrl}/me`)
             .then(res => {
                 if (res.ok) {
                     setIsAuthenticated(true);
@@ -26,7 +27,8 @@ export const AuthProvider = ( { children } ) => {
     const logout = async () => { 
         // Llamar al backend para que borre la cookie HttpOnly
         try {
-            await fetch('/api/auth/logout', { method: 'POST' });
+            const authUrl = import.meta.env.VITE_API_AUTH || '/api/auth';
+            await fetch(`${authUrl}/logout`, { method: 'POST' });
         } catch (e) {
             console.error('Error al cerrar sesión', e);
         }

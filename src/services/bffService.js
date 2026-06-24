@@ -1,5 +1,5 @@
 
-const DASHBOARD_BASE_URL = '/api/dashboard';
+const DASHBOARD_BASE_URL = import.meta.env.VITE_API_DASHBOARD || '/api/dashboard';
 
 export const obtenerTablero = async () => { 
     try { 
