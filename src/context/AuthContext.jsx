@@ -1,33 +1,49 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ( { children } ) => { 
-    const [token, setToken] = useState(localStorage.getItem('navium_token'));
+    const [isAuthenticated, setIsAuthenticated] = useState(null); // Empezar en null (cargando)
 
-    // Cada vez que el token cambie, lo actualizamos al almacenamiento local
-    useEffect( () => { 
-        if (token) { 
-            localStorage.setItem('navium_token', token);
-        } else { 
-            localStorage.removeItem('navium_token');
+    React.useEffect(() => {
+        // Verificar si la cookie HttpOnly es válida preguntando al backend
+        const authUrl = import.meta.env.VITE_API_AUTH || '/api/auth';
+        fetch(`${authUrl}/me`, { credentials: 'include' })
+            .then(res => {
+                if (res.ok) {
+                    setIsAuthenticated(true);
+                } else {
+                    setIsAuthenticated(false);
+                }
+            })
+            .catch(() => setIsAuthenticated(false));
+    }, []);
+
+    const login = (token) => { 
+        // El login centralizado maneja esto, pero lo dejamos por si acaso
+        setIsAuthenticated(true);
+    };
+
+    const logout = async () => { 
+        // Llamar al backend para que borre la cookie HttpOnly
+        try {
+            const authUrl = import.meta.env.VITE_API_AUTH || '/api/auth';
+            await fetch(`${authUrl}/logout`, { method: 'POST', credentials: 'include' });
+        } catch (e) {
+            console.error('Error al cerrar sesión', e);
         }
-    }, [token]);
-
-    const login = (newToken) => { 
-        setToken(newToken);
+        setIsAuthenticated(false);
+        const loginUrl = import.meta.env.VITE_URL_LOGIN_CENTRAL || 'http://localhost:5170';
+        window.location.href = loginUrl;
     };
 
-    const logout = () => { 
-        setToken(null);
-    };
+    if (isAuthenticated === null) return null;
 
     return ( 
-        <AuthContext.Provider value={{ token, login, logout, isAuthenticated: !!token}}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
 
-// Hook personalizado para usar el contexto de autenticación
 export const useAuth = () => useContext(AuthContext);

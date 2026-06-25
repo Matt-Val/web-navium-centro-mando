@@ -1,13 +1,13 @@
-const AUTH_API_URL = import.meta.env.VITE_AUTH_API_URL || 'http://localhost:8085';
 
 export const loginUsuario = async (email, password) => { 
     try { 
-        const response = await fetch(`${AUTH_API_URL}/api/auth/login`, {
+        const response = await fetch(`/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email, password })
+            credentials: 'include',
+            body: JSON.stringify({ email: email, password: password })
         });
 
         if (!response.ok) {
@@ -18,6 +18,19 @@ export const loginUsuario = async (email, password) => {
         return await response.json();
     } catch (error) { 
         console.error('Error al conectar con el servicio de usuarios:', error);
+        throw error;
+    }
+};
+
+export const logoutUsuario = async () => {
+    try {
+        const response = await fetch(`/api/auth/logout`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        return await response.json();
+    } catch (error) {
+        console.error('Error al cerrar sesión:', error);
         throw error;
     }
 };
